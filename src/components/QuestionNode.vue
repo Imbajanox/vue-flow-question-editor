@@ -48,6 +48,11 @@ const updateNodeData = () => {
   background: white;
   min-width: 200px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s, transform 0.1s;
+}
+
+.custom-node:hover {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
 }
 
 .question-node {
@@ -80,13 +85,14 @@ const updateNodeData = () => {
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.1s;
   pointer-events: auto;
   margin-right: 28px;
 }
 
 .add-answer-btn:hover {
   background: #7c3aed;
+  transform: translateY(-1px);
 }
 
 .delete-btn {
@@ -106,11 +112,12 @@ const updateNodeData = () => {
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.1s;
 }
 
 .delete-btn:hover {
   background: #dc2626;
+  transform: scale(1.1);
 }
 
 .node-content {
@@ -128,6 +135,7 @@ const updateNodeData = () => {
   font-size: 13px;
   background: white;
   color: #1e3a8a;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .node-input:focus {

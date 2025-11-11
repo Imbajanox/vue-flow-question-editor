@@ -24,6 +24,11 @@ const data = node.data
   background: white;
   min-width: 150px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s, transform 0.1s;
+}
+
+.custom-node:hover {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
 }
 
 .start-node {
@@ -65,10 +70,11 @@ const data = node.data
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.1s;
 }
 
 .delete-btn:hover {
   background: #dc2626;
+  transform: scale(1.1);
 }
 </style>

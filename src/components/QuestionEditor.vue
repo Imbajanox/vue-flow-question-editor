@@ -26,6 +26,8 @@
       :min-zoom="0.2"
       :max-zoom="4"
       fit-view-on-init
+      :snap-to-grid="true"
+      :snap-grid="[15, 15]"
     >
       <Background 
         :variant="BackgroundVariant.Dots"
@@ -33,7 +35,11 @@
         :gap="16"
         :size="1"
       />
-      <Controls />
+      <Controls 
+        :show-zoom="true"
+        :show-fit-view="true"
+        :show-interactive="false"
+      />
       <MiniMap 
         :node-color="getNodeColor"
         pannable
