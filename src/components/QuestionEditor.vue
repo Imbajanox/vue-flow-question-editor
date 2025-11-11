@@ -18,6 +18,7 @@
       :node-types="nodeTypes"
       class="vue-flow"
       @connect="onConnect"
+      :is-valid-connection="isValidConnection"
       :nodes-draggable="true"
       :selection-mode="SelectionMode.Partial"
       :delete-key-code="'Delete'"
@@ -96,14 +97,27 @@ let nodeId = 1
 
 const { onConnect, addEdges, removeNodes, removeEdges, updateNode } = useVueFlow()
 
+// Validate connections before creating them
+const isValidConnection = (connection) => {
+  // Prevent connecting a node to itself
+  if (connection.source === connection.target) {
+    return false
+  }
+  
+  // Allow all other connections
+  return true
+}
+
 // Configure connections with smooth edges and arrow markers
 onConnect((params) => {
-  addEdges([{
-    ...params,
-    type: 'smoothstep',
-    animated: true,
-    markerEnd: MarkerType.ArrowClosed,
-  }])
+  if (isValidConnection(params)) {
+    addEdges([{
+      ...params,
+      type: 'smoothstep',
+      animated: true,
+      markerEnd: MarkerType.ArrowClosed,
+    }])
+  }
 })
 
 const onEdgeClick = (event) => {

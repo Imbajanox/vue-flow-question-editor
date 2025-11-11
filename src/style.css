@@ -15,3 +15,13 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
+
+/* Vue Flow theme customization */
+:root {
+  --vf-node-bg: #ffffff;
+  --vf-node-text: #222;
+  --vf-connection-path: #b1b1b7;
+  --vf-handle: #555;
+  --vf-edge-color: #b1b1b7;
+  --vf-edge-color-selected: #555;
+}
