@@ -7,15 +7,14 @@
       class="compact-input"
     />
     <button
-        v-if="node.data?.onDelete"
-        @click.stop="node.data.onDelete"
-        title="Delete node"
-        aria-label="Delete node"
-      >
-        <i class="fas fa-trash" aria-hidden="true"></i>
-      </button>
+      v-if="node.data?.onDelete"
+      @click.stop="node.data.onDelete"
+      class="compact-close"
+      title="Delete answer"
+      aria-label="Delete answer"
+    >×</button>
 
-    <Handle type="source" :position="Position.Right" />
+    <Handle type="source" :position="Position.Right" id="answer-output" />
   </div>
 </template>
 
@@ -47,7 +46,12 @@ const updateNodeData = () => {
   min-width: 150;
   max-width: 300px;
   font-size: 13px;
-  box-shadow: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s, transform 0.1s;
+}
+
+.compact-node:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
 .compact-input {
@@ -80,8 +84,11 @@ const updateNodeData = () => {
   align-items: center;
   justify-content: center;
   padding: 0;
+  transition: background 0.2s, transform 0.1s;
 }
+
 .compact-close:hover {
   background: #dc2626;
+  transform: scale(1.1);
 }
 </style>

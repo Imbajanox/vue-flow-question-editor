@@ -18,14 +18,34 @@
       :node-types="nodeTypes"
       class="vue-flow"
       @connect="onConnect"
+      :is-valid-connection="isValidConnection"
       :nodes-draggable="true"
       :selection-mode="SelectionMode.Partial"
       :delete-key-code="'Delete'"
       @edge-click="onEdgeClick"
+      :default-viewport="{ zoom: 1 }"
+      :min-zoom="0.2"
+      :max-zoom="4"
+      fit-view-on-init
+      :snap-to-grid="true"
+      :snap-grid="[15, 15]"
     >
-      <Background pattern-color="#4b5563" :gap="16" />
-      <Controls />
-      <MiniMap />
+      <Background 
+        :variant="BackgroundVariant.Dots"
+        pattern-color="#4b5563"
+        :gap="16"
+        :size="1"
+      />
+      <Controls 
+        :show-zoom="true"
+        :show-fit-view="true"
+        :show-interactive="false"
+      />
+      <MiniMap 
+        :node-color="getNodeColor"
+        pannable
+        zoomable
+      />
     </VueFlow>
 
     <div v-if="showExport" class="export-modal" @click="showExport = false">
@@ -44,8 +64,8 @@
 
 <script setup>
 import { ref, markRaw, nextTick} from 'vue'
-import { VueFlow, useVueFlow, SelectionMode } from '@vue-flow/core'
-import { Background } from '@vue-flow/background'
+import { VueFlow, useVueFlow, SelectionMode, MarkerType } from '@vue-flow/core'
+import { Background, BackgroundVariant } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 
@@ -55,6 +75,7 @@ import QuestionNode from './QuestionNode.vue'
 import AnswerNode from './AnswerNode.vue'
 import TextNode from './TextNode.vue'
 
+// Import Vue Flow styles - this includes base styles and default theme
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
@@ -76,8 +97,27 @@ let nodeId = 1
 
 const { onConnect, addEdges, removeNodes, removeEdges, updateNode } = useVueFlow()
 
+// Validate connections before creating them
+const isValidConnection = (connection) => {
+  // Prevent connecting a node to itself
+  if (connection.source === connection.target) {
+    return false
+  }
+  
+  // Allow all other connections
+  return true
+}
+
+// Configure connections with smooth edges and arrow markers
 onConnect((params) => {
-  addEdges([params])
+  if (isValidConnection(params)) {
+    addEdges([{
+      ...params,
+      type: 'smoothstep',
+      animated: true,
+      markerEnd: MarkerType.ArrowClosed,
+    }])
+  }
 })
 
 const onEdgeClick = (event) => {
@@ -215,14 +255,21 @@ const exportJSON = () => {
       id: node.id,
       type: node.type,
       position: node.position,
-      data: node.data
+      data: {
+        // Only include relevant data fields, not functions
+        ...(node.data.question && { question: node.data.question }),
+        ...(node.data.answer && { answer: node.data.answer }),
+        ...(node.data.text && { text: node.data.text }),
+      }
     })),
     edges: edges.value.map(edge => ({
       id: edge.id,
       source: edge.source,
       target: edge.target,
       sourceHandle: edge.sourceHandle,
-      targetHandle: edge.targetHandle
+      targetHandle: edge.targetHandle,
+      type: edge.type,
+      animated: edge.animated
     }))
   }
   exportedData.value = JSON.stringify(exportData, null, 2)
@@ -254,6 +301,18 @@ const clearFlow = () => {
     edges.value = []
     nodeId = 1
   }
+}
+
+// Helper function for MiniMap node colors
+const getNodeColor = (node) => {
+  const colors = {
+    start: '#10b981',
+    question: '#3b82f6',
+    answer: '#8b5cf6',
+    text: '#f59e0b',
+    end: '#ef4444'
+  }
+  return colors[node.type] || '#6b7280'
 }
 </script>
 

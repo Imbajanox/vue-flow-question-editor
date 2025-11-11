@@ -10,36 +10,45 @@ A beautiful and user-friendly question editor built with Vue 3 and Vue Flow. Cre
 - 📝 **Text Node**: Add supplementary text content (can connect to answers)
 - 🏁 **End Node**: Mark the end of your flow
 - 📥 **JSON Export**: Export your flow as JSON with nodes and connections
-- 🎨 **Modern UI**: Clean, colorful interface with smooth interactions
-- 🔗 **Visual Connections**: Drag and drop to create connections between nodes
-- 🗺️ **MiniMap**: Navigate large flows easily
+- 🎨 **Modern UI**: Clean, colorful interface with smooth interactions and hover effects
+- 🔗 **Visual Connections**: Drag and drop to create animated connections with arrow markers
+- 🗺️ **MiniMap**: Navigate large flows easily with color-coded nodes
 - ⚡ **Built with Vite**: Fast development and optimized builds
+- 📐 **Snap to Grid**: Precise node positioning with 15x15 grid snapping
+- 🎯 **Connection Validation**: Prevents invalid connections (e.g., connecting a node to itself)
+- 🎭 **Vue Flow Standards**: Uses official Vue Flow theme and follows best practices
+- ⌨️ **Keyboard Shortcuts**: Delete selected nodes/edges with the Delete key
 
 ## Node Types
 
 ### Start Node (Green)
 - Entry point for the question flow
-- Has one output connection point
+- Has one output connection point at the bottom
+- Beautiful gradient background with hover effects
 
 ### Question Node (Blue)
 - Contains a question text input field
-- Can receive connections from above
-- Can send connections to answers or other nodes below
+- Can receive connections from above (top handle)
+- Can contain multiple answer nodes as children
+- Expandable with "+ Answer" button
+- Smooth transitions and focus states
 
 ### Answer Node (Purple)
 - Contains an answer text input field
-- Can receive connections from questions
-- Can send connections to other questions or text nodes
+- Compact design that lives inside question nodes
+- Can send connections to other questions or nodes (right handle)
+- Delete button for easy removal
 
 ### Text Node (Yellow/Orange)
 - Contains a multi-line text area
 - Can be used for explanations or additional information
-- Can connect to answers for later use
-- Can send and receive connections
+- Has both input (top) and output (bottom) handles
+- Resizable text area with smooth focus states
 
 ### End Node (Red)
 - Marks the end of a question flow
-- Can only receive connections
+- Can only receive connections (top handle)
+- Checkered flag icon for clear visual indication
 
 ## Installation
 
@@ -279,10 +288,31 @@ vue-flow-question-editor/
 
 - **Vue 3** - Progressive JavaScript framework
 - **Vite** - Next-generation frontend tooling
-- **Vue Flow** - Interactive node-based editor
+- **Vue Flow** - Interactive node-based editor with official theming
+  - Smooth step edges with animated connections
+  - Arrow markers for directional flow
+  - Dots background pattern
+  - Interactive minimap with color-coded nodes
+  - Zoom controls (0.2x - 4x)
+  - Snap-to-grid (15x15)
 - **Vue Flow Background** - Grid background for the canvas
 - **Vue Flow Controls** - Zoom and pan controls
 - **Vue Flow MiniMap** - Navigation minimap
+
+## Vue Flow Standards Applied
+
+This project follows Vue Flow best practices and standards:
+
+1. **Official Theme**: Uses `@vue-flow/core/dist/theme-default.css` instead of custom CSS
+2. **Proper Edge Types**: Implements `smoothstep` edges with animated connections
+3. **Connection Markers**: Uses `MarkerType.ArrowClosed` for clear directional flow
+4. **Handle Positioning**: Follows top-to-bottom flow convention (top inputs, bottom outputs)
+5. **Snap to Grid**: Enables precise node positioning with grid snapping
+6. **MiniMap Integration**: Color-coded nodes in minimap for easy navigation
+7. **Connection Validation**: Prevents invalid connections before creation
+8. **Keyboard Support**: Delete key support for removing nodes and edges
+9. **Viewport Configuration**: Proper zoom limits and fit-view-on-init
+10. **Theme Variables**: Uses CSS custom properties for consistent theming
 
 ## Browser Support
 
