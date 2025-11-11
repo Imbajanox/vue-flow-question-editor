@@ -5,7 +5,6 @@
       <div class="buttons">
         <button @click="addNode('start')" class="btn btn-start">+ Start</button>
         <button @click="addNode('question')" class="btn btn-question">+ Question</button>
-        <button @click="addNode('answer')" class="btn btn-answer">+ Answer</button>
         <button @click="addNode('text')" class="btn btn-text">+ Text</button>
         <button @click="addNode('end')" class="btn btn-end">+ End</button>
         <button @click="exportJSON" class="btn btn-export">📥 Export JSON</button>
@@ -19,8 +18,10 @@
       :node-types="nodeTypes"
       class="vue-flow"
       @connect="onConnect"
-      @nodes-change="onNodesChange"
-      @edges-change="onEdgesChange"
+      :nodes-draggable="true"
+      :selection-mode="SelectionMode.Partial"
+      :delete-key-code="'Delete'"
+      @edge-click="onEdgeClick"
     >
       <Background pattern-color="#4b5563" :gap="16" />
       <Controls />
@@ -43,7 +44,7 @@
 
 <script setup>
 import { ref, markRaw } from 'vue'
-import { VueFlow, useVueFlow } from '@vue-flow/core'
+import { VueFlow, useVueFlow, SelectionMode } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
@@ -73,21 +74,97 @@ const showExport = ref(false)
 const exportedData = ref('')
 let nodeId = 1
 
-const { onConnect, addEdges, onNodesChange, onEdgesChange } = useVueFlow()
+const { onConnect, addEdges, removeNodes, removeEdges } = useVueFlow()
 
 onConnect((params) => {
   addEdges([params])
 })
 
+const onEdgeClick = (event) => {
+  if (event.edge && confirm('Delete this connection?')) {
+    removeEdges([event.edge.id])
+  }
+}
+
+const deleteNode = (nodeId) => {
+  if (confirm('Delete this node?')) {
+    removeNodes([nodeId])
+  }
+}
+
+const addAnswerToQuestion = (questionId) => {
+  const answerId = `answer-${nodeId++}`
+  
+  // Count existing answers for this question to position the new one
+  const existingAnswers = nodes.value.filter(n => n.parentNode === questionId)
+  const yPosition = 80 + (existingAnswers.length * 70)
+  
+  nodes.value.push({
+    id: answerId,
+    type: 'answer',
+    position: { x: 20, y: yPosition },
+    parentNode: questionId,
+    extent: 'parent',
+    data: {
+      onDelete: () => deleteNode(answerId)
+    }
+  })
+}
+
 const addNode = (type) => {
   const id = `${type}-${nodeId++}`
+  
+  // Create the base node
   const newNode = {
     id,
     type,
     position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
-    data: {},
+    data: {
+      onDelete: () => deleteNode(id)
+    },
   }
-  nodes.value.push(newNode)
+  
+  // If it's a question node, make it expandable and set it up to contain children
+  if (type === 'question') {
+    newNode.data.isExpanded = true
+    newNode.data.onAddAnswer = () => addAnswerToQuestion(id)
+    newNode.style = {
+      width: '300px',
+      height: 'auto',
+      minHeight: '150px'
+    }
+    
+    // Add two default answer children
+    const answerId1 = `answer-${nodeId++}`
+    const answerId2 = `answer-${nodeId++}`
+    
+    nodes.value.push(newNode)
+    
+    // Add answer child nodes
+    nodes.value.push({
+      id: answerId1,
+      type: 'answer',
+      position: { x: 20, y: 80 },
+      parentNode: id,
+      extent: 'parent',
+      data: {
+        onDelete: () => deleteNode(answerId1)
+      }
+    })
+    
+    nodes.value.push({
+      id: answerId2,
+      type: 'answer',
+      position: { x: 20, y: 150 },
+      parentNode: id,
+      extent: 'parent',
+      data: {
+        onDelete: () => deleteNode(answerId2)
+      }
+    })
+  } else {
+    nodes.value.push(newNode)
+  }
 }
 
 const exportJSON = () => {
