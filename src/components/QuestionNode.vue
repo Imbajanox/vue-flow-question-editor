@@ -4,6 +4,7 @@
     <div class="node-header">
       <span class="node-icon">❓</span>
       <span class="node-title">Question</span>
+      <button v-if="node.data?.onAddAnswer" @click.stop="node.data.onAddAnswer" class="add-answer-btn" title="Add answer">+ Answer</button>
       <button v-if="node.data?.onDelete" @click.stop="node.data.onDelete" class="delete-btn" title="Delete node">×</button>
     </div>
     <div class="node-content">
@@ -13,9 +14,6 @@
         placeholder="Enter question..."
         class="node-input"
       />
-    </div>
-    <div class="node-footer">
-      <button v-if="node.data?.onAddAnswer" @click.stop="node.data.onAddAnswer" class="add-answer-btn" title="Add answer">+ Add Answer</button>
     </div>
     <!-- No output handle - answers will provide output handles -->
   </div>
@@ -51,7 +49,8 @@ const updateNodeData = () => {
   background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
   min-width: 280px;
   min-height: 250px;
-  padding-bottom: 80px;
+  padding-bottom: 50px;
+  position: relative;
 }
 
 .node-header {
@@ -62,6 +61,25 @@ const updateNodeData = () => {
   color: #1e3a8a;
   margin-bottom: 10px;
   position: relative;
+}
+
+.add-answer-btn {
+  margin-left: auto;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  pointer-events: auto;
+  margin-right: 28px;
+}
+
+.add-answer-btn:hover {
+  background: #7c3aed;
 }
 
 .delete-btn {
@@ -114,27 +132,5 @@ const updateNodeData = () => {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.node-footer {
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-}
-
-.add-answer-btn {
-  background: #8b5cf6;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.add-answer-btn:hover {
-  background: #7c3aed;
 }
 </style>
