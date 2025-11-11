@@ -7,6 +7,7 @@
         <button @click="addNode('question')" class="btn btn-question">+ Question</button>
         <button @click="addNode('text')" class="btn btn-text">+ Text</button>
         <button @click="addNode('end')" class="btn btn-end">+ End</button>
+        <button @click="triggerImport" class="btn btn-import">📤 Import JSON</button>
         <button @click="exportJSON" class="btn btn-export">📥 Export JSON</button>
         <button @click="clearFlow" class="btn btn-clear">🗑️ Clear</button>
       </div>
@@ -47,6 +48,29 @@
         zoomable
       />
     </VueFlow>
+
+    <input
+      ref="fileInput"
+      type="file"
+      accept="application/json"
+      @change="handleFileImport"
+      style="display: none"
+    />
+
+    <div v-if="showImport" class="import-modal" @click="showImport = false">
+      <div class="modal-content" @click.stop>
+        <h2>Import JSON</h2>
+        <textarea
+          v-model="importData"
+          placeholder="Paste your JSON here..."
+          class="import-textarea"
+        ></textarea>
+        <div class="modal-actions">
+          <button @click="importFromText" class="btn btn-primary">Import</button>
+          <button @click="showImport = false" class="btn btn-close">Close</button>
+        </div>
+      </div>
+    </div>
 
     <div v-if="showExport" class="export-modal" @click="showExport = false">
       <div class="modal-content" @click.stop>
@@ -92,7 +116,10 @@ const nodeTypes = {
 const nodes = ref([])
 const edges = ref([])
 const showExport = ref(false)
+const showImport = ref(false)
 const exportedData = ref('')
+const importData = ref('')
+const fileInput = ref(null)
 let nodeId = 1
 
 const { onConnect, addEdges, removeNodes, removeEdges, updateNode } = useVueFlow()
@@ -255,6 +282,7 @@ const exportJSON = () => {
       id: node.id,
       type: node.type,
       position: node.position,
+      ...(node.parentNode && { parentNode: node.parentNode }),
       data: {
         // Only include relevant data fields, not functions
         ...(node.data.question && { question: node.data.question }),
@@ -303,6 +331,121 @@ const clearFlow = () => {
   }
 }
 
+const triggerImport = () => {
+  showImport.value = true
+  importData.value = ''
+}
+
+const handleFileImport = (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const json = JSON.parse(e.target.result)
+      importJSON(json)
+    } catch (error) {
+      alert('Invalid JSON file: ' + error.message)
+    }
+  }
+  reader.readAsText(file)
+  event.target.value = '' // Reset input
+}
+
+const importFromText = () => {
+  try {
+    const json = JSON.parse(importData.value)
+    importJSON(json)
+    showImport.value = false
+  } catch (error) {
+    alert('Invalid JSON: ' + error.message)
+  }
+}
+
+const importJSON = (data) => {
+  if (!data.nodes || !Array.isArray(data.nodes)) {
+    alert('Invalid JSON structure: missing nodes array')
+    return
+  }
+
+  // Clear existing flow
+  nodes.value = []
+  edges.value = []
+
+  // Find the highest node ID to continue numbering
+  let maxId = 0
+  data.nodes.forEach(node => {
+    const match = node.id.match(/\d+$/)
+    if (match) {
+      const id = parseInt(match[0])
+      if (id > maxId) maxId = id
+    }
+  })
+  nodeId = maxId + 1
+
+  // Import nodes with their data and event handlers
+  data.nodes.forEach(node => {
+    const newNode = {
+      id: node.id,
+      type: node.type,
+      position: node.position,
+      data: {
+        ...(node.data.question && { question: node.data.question }),
+        ...(node.data.answer && { answer: node.data.answer }),
+        ...(node.data.text && { text: node.data.text }),
+        onDelete: () => deleteNode(node.id)
+      }
+    }
+
+    // Add parentNode if it exists
+    if (node.parentNode) {
+      newNode.parentNode = node.parentNode
+      newNode.extent = 'parent'
+    }
+
+    // For question nodes, add special handlers and style
+    if (node.type === 'question') {
+      newNode.data.isExpanded = true
+      newNode.data.onAddAnswer = () => addAnswerToQuestion(node.id)
+      newNode.style = {
+        width: '300px',
+        height: 'auto',
+        minHeight: '150px'
+      }
+    }
+
+    nodes.value.push(newNode)
+  })
+
+  // Import edges
+  if (data.edges && Array.isArray(data.edges)) {
+    data.edges.forEach(edge => {
+      edges.value.push({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        sourceHandle: edge.sourceHandle || null,
+        targetHandle: edge.targetHandle || null,
+        type: edge.type || 'smoothstep',
+        animated: edge.animated !== undefined ? edge.animated : true,
+        markerEnd: MarkerType.ArrowClosed
+      })
+    })
+  }
+
+  // Update heights for all question nodes
+  nextTick(() => {
+    nodes.value.forEach(node => {
+      if (node.type === 'question') {
+        updateParentNodeHeight(node.id)
+      }
+    })
+  })
+
+  alert('Flow imported successfully!')
+}
+
 // Helper function for MiniMap node colors
 const getNodeColor = (node) => {
   const colors = {
@@ -322,6 +465,15 @@ const getNodeColor = (node) => {
   z-index: 1000; 
   /* This might also be needed if the handle is inside a parent with a lower z-index */
   position: relative; 
+}
+
+/* Ensure child nodes and their handles are above parent nodes */
+:deep(.vue-flow__node) {
+  z-index: 1;
+}
+
+:deep(.vue-flow__node-answer) {
+  z-index: 100 !important;
 }
 
 /* 2. Ensure Edges are also on top */
@@ -419,6 +571,11 @@ const getNodeColor = (node) => {
   color: white;
 }
 
+.btn-import {
+  background: #8b5cf6;
+  color: white;
+}
+
 .btn-clear {
   background: #6b7280;
   color: white;
@@ -429,7 +586,8 @@ const getNodeColor = (node) => {
   background: #1a1a1a;
 }
 
-.export-modal {
+.export-modal,
+.import-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -467,6 +625,25 @@ const getNodeColor = (node) => {
   max-height: 400px;
   font-size: 13px;
   line-height: 1.5;
+}
+
+.import-textarea {
+  width: 100%;
+  min-height: 300px;
+  background: #1a1a1a;
+  color: #10b981;
+  padding: 20px;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.import-textarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
 }
 
 .modal-actions {
