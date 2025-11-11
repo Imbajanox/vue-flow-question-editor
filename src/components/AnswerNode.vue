@@ -1,9 +1,10 @@
 <template>
   <div class="custom-node answer-node">
-    <Handle type="target" :position="Position.Top" />
+    <!-- No target handle - answer is a child of question -->
     <div class="node-header">
       <span class="node-icon">✓</span>
       <span class="node-title">Answer</span>
+      <button v-if="node.data?.onDelete" @click.stop="node.data.onDelete" class="delete-btn" title="Delete node">×</button>
     </div>
     <div class="node-content">
       <input 
@@ -13,7 +14,7 @@
         class="node-input"
       />
     </div>
-    <Handle type="source" :position="Position.Bottom" />
+    <Handle type="source" :position="Position.Right" />
   </div>
 </template>
 
@@ -34,17 +35,18 @@ const updateNodeData = () => {
 
 <style scoped>
 .custom-node {
-  padding: 15px;
+  padding: 10px;
   border-radius: 8px;
   border: 2px solid;
   background: white;
-  min-width: 200px;
+  min-width: 220px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .answer-node {
   border-color: #8b5cf6;
   background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  min-width: 240px;
 }
 
 .node-header {
@@ -54,6 +56,31 @@ const updateNodeData = () => {
   font-weight: 600;
   color: #5b21b6;
   margin-bottom: 10px;
+  position: relative;
+}
+
+.delete-btn {
+  position: absolute;
+  right: 0;
+  top: -5px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
 }
 
 .node-icon {

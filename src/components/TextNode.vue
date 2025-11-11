@@ -4,6 +4,7 @@
     <div class="node-header">
       <span class="node-icon">📝</span>
       <span class="node-title">Text</span>
+      <button v-if="node.data?.onDelete" @click.stop="node.data.onDelete" class="delete-btn" title="Delete node">×</button>
     </div>
     <div class="node-content">
       <textarea 
@@ -55,6 +56,31 @@ const updateNodeData = () => {
   font-weight: 600;
   color: #92400e;
   margin-bottom: 10px;
+  position: relative;
+}
+
+.delete-btn {
+  position: absolute;
+  right: 0;
+  top: -5px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
 }
 
 .node-icon {
