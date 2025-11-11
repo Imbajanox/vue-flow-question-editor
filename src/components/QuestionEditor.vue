@@ -5,7 +5,6 @@
       <div class="buttons">
         <button @click="addNode('start')" class="btn btn-start">+ Start</button>
         <button @click="addNode('question')" class="btn btn-question">+ Question</button>
-        <button @click="addNode('answer')" class="btn btn-answer">+ Answer</button>
         <button @click="addNode('text')" class="btn btn-text">+ Text</button>
         <button @click="addNode('end')" class="btn btn-end">+ End</button>
         <button @click="exportJSON" class="btn btn-export">📥 Export JSON</button>
@@ -19,8 +18,6 @@
       :node-types="nodeTypes"
       class="vue-flow"
       @connect="onConnect"
-      @nodes-change="onNodesChange"
-      @edges-change="onEdgesChange"
       :nodes-draggable="true"
       :selection-mode="SelectionMode.Partial"
       :delete-key-code="'Delete'"
@@ -77,7 +74,7 @@ const showExport = ref(false)
 const exportedData = ref('')
 let nodeId = 1
 
-const { onConnect, addEdges, onNodesChange, onEdgesChange, removeNodes, removeEdges } = useVueFlow()
+const { onConnect, addEdges, removeNodes, removeEdges } = useVueFlow()
 
 onConnect((params) => {
   addEdges([params])
@@ -93,6 +90,25 @@ const deleteNode = (nodeId) => {
   if (confirm('Delete this node?')) {
     removeNodes([nodeId])
   }
+}
+
+const addAnswerToQuestion = (questionId) => {
+  const answerId = `answer-${nodeId++}`
+  
+  // Count existing answers for this question to position the new one
+  const existingAnswers = nodes.value.filter(n => n.parentNode === questionId)
+  const yPosition = 80 + (existingAnswers.length * 70)
+  
+  nodes.value.push({
+    id: answerId,
+    type: 'answer',
+    position: { x: 20, y: yPosition },
+    parentNode: questionId,
+    extent: 'parent',
+    data: {
+      onDelete: () => deleteNode(answerId)
+    }
+  })
 }
 
 const addNode = (type) => {
@@ -111,6 +127,7 @@ const addNode = (type) => {
   // If it's a question node, make it expandable and set it up to contain children
   if (type === 'question') {
     newNode.data.isExpanded = true
+    newNode.data.onAddAnswer = () => addAnswerToQuestion(id)
     newNode.style = {
       width: '300px',
       height: 'auto',

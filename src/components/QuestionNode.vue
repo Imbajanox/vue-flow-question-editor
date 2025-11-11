@@ -14,6 +14,9 @@
         class="node-input"
       />
     </div>
+    <div class="node-footer">
+      <button v-if="node.data?.onAddAnswer" @click.stop="node.data.onAddAnswer" class="add-answer-btn" title="Add answer">+ Add Answer</button>
+    </div>
     <!-- No output handle - answers will provide output handles -->
   </div>
 </template>
@@ -111,5 +114,27 @@ const updateNodeData = () => {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.node-footer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.add-answer-btn {
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-answer-btn:hover {
+  background: #7c3aed;
 }
 </style>
