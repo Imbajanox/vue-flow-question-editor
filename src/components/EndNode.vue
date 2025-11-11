@@ -1,6 +1,6 @@
 <template>
   <div class="custom-node end-node">
-    <Handle type="target" :position="Position.Top" />
+    <Handle type="target" :position="Position.Left" />
     <div class="node-header">
       <span class="node-icon">🏁</span>
       <span class="node-title">End</span>

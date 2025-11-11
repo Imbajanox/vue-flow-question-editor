@@ -1,11 +1,19 @@
 <template>
   <div class="custom-node question-node">
-    <Handle type="target" :position="Position.Top" />
+    <Handle type="target" :position="Position.Left" />
     <div class="node-header">
-      <span class="node-icon">❓</span>
+      <i class="fas fa-question-circle" aria-hidden="true"></i>
       <span class="node-title">Question</span>
       <button v-if="node.data?.onAddAnswer" @click.stop="node.data.onAddAnswer" class="add-answer-btn" title="Add answer">+ Answer</button>
-      <button v-if="node.data?.onDelete" @click.stop="node.data.onDelete" class="delete-btn" title="Delete node">×</button>
+      <button
+        v-if="node.data?.onDelete"
+        @click.stop="node.data.onDelete"
+
+        title="Delete node"
+        aria-label="Delete node"
+      >
+        <i class="fas fa-trash" aria-hidden="true"></i>
+      </button>
     </div>
     <div class="node-content">
       <input 
@@ -48,7 +56,8 @@ const updateNodeData = () => {
   border-color: #3b82f6;
   background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
   min-width: 280px;
-  min-height: 250px;
+  height: 100%; /* <-- Ensure it takes the full calculated height from Vue Flow */
+  min-height: auto;
   padding-bottom: 50px;
   position: relative;
 }
@@ -116,13 +125,18 @@ const updateNodeData = () => {
 
 .node-content {
   margin-top: 8px;
-}
-
+  display: flex;
+  flex-wrap: wrap;
 .node-input {
-  width: 100%;
+  flex: 1 1 60%;
+  min-width: 180px;
   padding: 8px;
   border: 1px solid #93c5fd;
   border-radius: 4px;
+  font-size: 13px;
+  background: white;
+  color: #1e3a8a;
+}
   font-size: 13px;
   background: white;
   color: #1e3a8a;

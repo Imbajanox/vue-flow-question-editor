@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, markRaw } from 'vue'
+import { ref, markRaw, nextTick} from 'vue'
 import { VueFlow, useVueFlow, SelectionMode } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -74,7 +74,7 @@ const showExport = ref(false)
 const exportedData = ref('')
 let nodeId = 1
 
-const { onConnect, addEdges, removeNodes, removeEdges } = useVueFlow()
+const { onConnect, addEdges, removeNodes, removeEdges, updateNode } = useVueFlow()
 
 onConnect((params) => {
   addEdges([params])
@@ -86,19 +86,32 @@ const onEdgeClick = (event) => {
   }
 }
 
-const deleteNode = (nodeId) => {
-  if (confirm('Delete this node?')) {
-    removeNodes([nodeId])
+const deleteNode = (nodeIdToDelete) => {
+   if (confirm('Delete this node?')) {
+    // 1. Find the node to be deleted
+    const nodeToDelete = nodes.value.find(n => n.id === nodeIdToDelete)
+    let parentId = null
+    if (nodeToDelete && nodeToDelete.parentNode) {
+      parentId = nodeToDelete.parentNode
+    }
+
+    // 2. Remove the node and associated edges
+    removeNodes([nodeIdToDelete])
+
+    if (parentId) {
+      nextTick(() => {
+        updateParentNodeHeight(parentId)
+      })
+    }
   }
 }
 
 const addAnswerToQuestion = (questionId) => {
   const answerId = `answer-${nodeId++}`
-  
   // Count existing answers for this question to position the new one
   const existingAnswers = nodes.value.filter(n => n.parentNode === questionId)
-  const yPosition = 80 + (existingAnswers.length * 70)
-  
+  const yPosition = 120 + (existingAnswers.length * 60) // y-position based on number of existing children
+
   nodes.value.push({
     id: answerId,
     type: 'answer',
@@ -109,6 +122,55 @@ const addAnswerToQuestion = (questionId) => {
       onDelete: () => deleteNode(answerId)
     }
   })
+  updateParentNodeHeight(questionId)
+}
+
+
+const updateParentNodeHeight = (questionId) => {
+    const parentNode = nodes.value.find(n => n.id === questionId)
+    
+    if (!parentNode || parentNode.type !== 'question') {
+        console.log(`[Height Calc] Parent node ${questionId} not found or not a question type. Aborting.`);
+        return
+    }
+
+    const childNodes = nodes.value.filter(n => n.parentNode === questionId)
+
+    const ANSWER_NODE_HEIGHT = 30 
+    const MIN_HEIGHT = 150 
+    const BOTTOM_PADDING = 30 
+    
+    let maxBottom = 0
+
+    // 1. Calculate the required height
+    for (const child of childNodes) {
+        // child.position.y is the top offset of the child relative to the parent
+        const childBottom = child.position.y + ANSWER_NODE_HEIGHT
+        if (childBottom > maxBottom) {
+            maxBottom = childBottom
+        }
+    }
+
+    const requiredHeight = maxBottom + BOTTOM_PADDING
+    const newHeight = Math.max(requiredHeight, MIN_HEIGHT)
+
+    // 2. Define the new style object
+    const newStyle = {
+        ...parentNode.style,
+        width: '300px', 
+        height: `${newHeight}px`,
+        minHeight: '150px'
+    };
+
+    // 3. Use updateNode to apply the style change and force a re-render
+    // This is the key change for reliability.
+    const success = updateNode(questionId, { style: newStyle })
+
+    // Optional: Log success to confirm Vue Flow received the update command
+    console.log(`[Height Calc] updateNode success for ${questionId}: ${success}, New Height: ${newHeight}px`);
+
+    // NOTE: We no longer need to manually modify nodes.value[index]
+    // because updateNode handles both the internal state and the reactive array update.
 }
 
 const addNode = (type) => {
@@ -140,28 +202,8 @@ const addNode = (type) => {
     
     nodes.value.push(newNode)
     
-    // Add answer child nodes
-    nodes.value.push({
-      id: answerId1,
-      type: 'answer',
-      position: { x: 20, y: 80 },
-      parentNode: id,
-      extent: 'parent',
-      data: {
-        onDelete: () => deleteNode(answerId1)
-      }
-    })
     
-    nodes.value.push({
-      id: answerId2,
-      type: 'answer',
-      position: { x: 20, y: 150 },
-      parentNode: id,
-      extent: 'parent',
-      data: {
-        onDelete: () => deleteNode(answerId2)
-      }
-    })
+    updateParentNodeHeight(id)
   } else {
     nodes.value.push(newNode)
   }
@@ -216,6 +258,26 @@ const clearFlow = () => {
 </script>
 
 <style scoped>
+.vue-flow__handle {
+  /* Set a high z-index for the handles */
+  z-index: 1000; 
+  /* This might also be needed if the handle is inside a parent with a lower z-index */
+  position: relative; 
+}
+
+/* 2. Ensure Edges are also on top */
+/* Targeting the path for the connections */
+.vue-flow__edge-path {
+  /* Set a high z-index for the path itself */
+  z-index: 900 !important; 
+}
+
+/* 3. If the above isn't enough, target the entire edge group */
+:deep(.vue-flow__edge) {
+    /* The :deep selector is necessary to style elements inside Vue Flow's component slots */
+    z-index: 900;
+}
+
 .question-editor {
   width: 100%;
   height: 100vh;

@@ -5,7 +5,7 @@
       <span class="node-title">Start</span>
       <button v-if="data?.onDelete" @click.stop="data.onDelete" class="delete-btn" title="Delete node">×</button>
     </div>
-    <Handle type="source" :position="Position.Bottom" />
+    <Handle type="source" :position="Position.Right" />
   </div>
 </template>
 
