@@ -18,10 +18,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { Handle, Position, useNode } from '@vue-flow/core'
 
-const { node, nodeEl } = useNode()
+const { node } = useNode()
 const questionText = ref(node.data?.question || '')
 
 const updateNodeData = () => {

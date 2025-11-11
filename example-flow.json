@@ -1,0 +1,137 @@
+{
+  "nodes": [
+    {
+      "id": "start-1",
+      "type": "start",
+      "position": {
+        "x": 250,
+        "y": 50
+      },
+      "data": {}
+    },
+    {
+      "id": "question-1",
+      "type": "question",
+      "position": {
+        "x": 200,
+        "y": 150
+      },
+      "data": {
+        "question": "What is your favorite color?"
+      }
+    },
+    {
+      "id": "answer-1",
+      "type": "answer",
+      "position": {
+        "x": 100,
+        "y": 280
+      },
+      "data": {
+        "answer": "Blue"
+      }
+    },
+    {
+      "id": "answer-2",
+      "type": "answer",
+      "position": {
+        "x": 300,
+        "y": 280
+      },
+      "data": {
+        "answer": "Red"
+      }
+    },
+    {
+      "id": "text-1",
+      "type": "text",
+      "position": {
+        "x": 100,
+        "y": 410
+      },
+      "data": {
+        "text": "Great choice! Blue is a calming color."
+      }
+    },
+    {
+      "id": "question-2",
+      "type": "question",
+      "position": {
+        "x": 300,
+        "y": 410
+      },
+      "data": {
+        "question": "Do you prefer light or dark red?"
+      }
+    },
+    {
+      "id": "end-1",
+      "type": "end",
+      "position": {
+        "x": 100,
+        "y": 540
+      },
+      "data": {}
+    },
+    {
+      "id": "end-2",
+      "type": "end",
+      "position": {
+        "x": 300,
+        "y": 540
+      },
+      "data": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1-2",
+      "source": "start-1",
+      "target": "question-1",
+      "sourceHandle": null,
+      "targetHandle": null
+    },
+    {
+      "id": "e2-3",
+      "source": "question-1",
+      "target": "answer-1",
+      "sourceHandle": null,
+      "targetHandle": null
+    },
+    {
+      "id": "e2-4",
+      "source": "question-1",
+      "target": "answer-2",
+      "sourceHandle": null,
+      "targetHandle": null
+    },
+    {
+      "id": "e3-5",
+      "source": "answer-1",
+      "target": "text-1",
+      "sourceHandle": null,
+      "targetHandle": null
+    },
+    {
+      "id": "e4-6",
+      "source": "answer-2",
+      "target": "question-2",
+      "sourceHandle": null,
+      "targetHandle": null
+    },
+    {
+      "id": "e5-7",
+      "source": "text-1",
+      "target": "end-1",
+      "sourceHandle": null,
+      "targetHandle": null
+    },
+    {
+      "id": "e6-8",
+      "source": "question-2",
+      "target": "end-2",
+      "sourceHandle": null,
+      "targetHandle": null
+    }
+  ]
+}
