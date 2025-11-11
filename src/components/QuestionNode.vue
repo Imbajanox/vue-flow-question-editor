@@ -1,6 +1,6 @@
 <template>
   <div class="custom-node question-node">
-    <Handle type="target" :position="Position.Left" />
+    <Handle type="target" :position="Position.Top" id="question-input" />
     <div class="node-header">
       <i class="fas fa-question-circle" aria-hidden="true"></i>
       <span class="node-title">Question</span>
@@ -8,12 +8,10 @@
       <button
         v-if="node.data?.onDelete"
         @click.stop="node.data.onDelete"
-
+        class="delete-btn"
         title="Delete node"
         aria-label="Delete node"
-      >
-        <i class="fas fa-trash" aria-hidden="true"></i>
-      </button>
+      >×</button>
     </div>
     <div class="node-content">
       <input 
@@ -115,28 +113,18 @@ const updateNodeData = () => {
   background: #dc2626;
 }
 
-.node-icon {
-  font-size: 20px;
-}
-
-.node-title {
-  font-size: 14px;
-}
-
 .node-content {
   margin-top: 8px;
   display: flex;
   flex-wrap: wrap;
+}
+
 .node-input {
   flex: 1 1 60%;
   min-width: 180px;
   padding: 8px;
   border: 1px solid #93c5fd;
   border-radius: 4px;
-  font-size: 13px;
-  background: white;
-  color: #1e3a8a;
-}
   font-size: 13px;
   background: white;
   color: #1e3a8a;

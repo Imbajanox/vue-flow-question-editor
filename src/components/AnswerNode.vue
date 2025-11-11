@@ -7,15 +7,14 @@
       class="compact-input"
     />
     <button
-        v-if="node.data?.onDelete"
-        @click.stop="node.data.onDelete"
-        title="Delete node"
-        aria-label="Delete node"
-      >
-        <i class="fas fa-trash" aria-hidden="true"></i>
-      </button>
+      v-if="node.data?.onDelete"
+      @click.stop="node.data.onDelete"
+      class="compact-close"
+      title="Delete answer"
+      aria-label="Delete answer"
+    >×</button>
 
-    <Handle type="source" :position="Position.Right" />
+    <Handle type="source" :position="Position.Right" id="answer-output" />
   </div>
 </template>
 
